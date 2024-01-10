@@ -3,6 +3,9 @@
 
 This application, designed with Next.js and React, allows you to test the stability of your internet connection. Several features will be developed to test this stability on the servers of various online games.
 
+## Requirements
+
+You need Node 21.5.0 or higher.
 
 ## Run Locally
 
