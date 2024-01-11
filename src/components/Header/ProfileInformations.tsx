@@ -1,9 +1,13 @@
 import React from 'react';
+import ThemeToggle from "@/theme/ThemeToggle";
 
 const ProfileInformations = () => {
     return (
+
         <div className="flex flex-shrink-0 items-center space-x-4 text-white">
             <div className="flex flex-shrink-0 items-center space-x-4 text-white">
+
+                <ThemeToggle />
 
                 <div className="flex flex-col items-end ">
                     <div className="text-md font-medium ">Unknow Unknow</div>

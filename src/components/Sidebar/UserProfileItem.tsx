@@ -1,14 +1,19 @@
 import React from 'react';
 import {Link} from "@nextui-org/link";
 import {UserRound} from "lucide-react";
+import {Button} from "@/components/ui/button";
 
 const UserProfileItem = () => {
     return (
-        <div className="h-10 w-10 flex items-center justify-center rounded-lg cursor-pointer hover:text-gray-800 hover:bg-white  hover:duration-300 hover:ease-linear focus:bg-white">
+        <Button
+            variant="ghost"
+            size="sm"
+            asChild
+        >
             <Link href="/profile">
                 <UserRound />
             </Link>
-        </div>
+        </Button>
     );
 };
 
