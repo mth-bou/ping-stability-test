@@ -6,7 +6,7 @@ import ThemeProvider from "@/theme/ThemeProvider";
 import Header from "@/layout/Header";
 import Footer from "@/layout/Footer";
 import React from "react";
-import Sidebar from "@/components/Sidebar";
+import Sidebar from "@/layout/Sidebar";
 import Main from "@/layout/Main";
 
 const inter = Inter({ subsets: ['latin'] })

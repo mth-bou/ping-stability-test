@@ -1,21 +1,20 @@
 import React from 'react';
-import {BarChart3} from "lucide-react";
+import {Home} from "lucide-react";
 import {Link} from "@nextui-org/link";
 import {Button} from "@/components/ui/button";
 
-const TestConnectionItem = () => {
+const HomeItem = () => {
     return (
         <Button
             variant="ghost"
             size="sm"
             asChild
         >
-            <Link href="/test-connection">
-                <BarChart3 />
+            <Link href="/">
+                <Home />
             </Link>
-
         </Button>
     );
 };
 
-export default TestConnectionItem;
+export default HomeItem;

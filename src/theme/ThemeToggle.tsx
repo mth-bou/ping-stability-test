@@ -1,21 +1,12 @@
 "use client";
 
-import React, {useEffect, useState} from 'react';
+import React from 'react';
 import {useTheme} from "next-themes";
 import {Moon, SunMedium} from "lucide-react";
-import {Switch} from "@/components/ui/switch";
 import {Button} from "@/components/ui/button";
-import {Label} from "@/components/ui/label";
 
 const ThemeToggle = () => {
-    const [mounted, setMounted] = useState(false);
     const { theme, setTheme } = useTheme();
-
-    useEffect(() => {
-        setMounted(true);
-    }, []);
-
-    if (!mounted) return null;
 
     return (
         <Button
