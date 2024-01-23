@@ -78,6 +78,6 @@ export const authOptions = {
 } satisfies NextAuthOptions
 
 // Use it in server contexts
-export function getAuthSession(...args: [GetServerSidePropsContext["req"], GetServerSidePropsContext["res"]] | [NextApiRequest, NextApiResponse] | []) {
-    return getServerSession(...args, authOptions)
+export const getAuthSession = async () => {
+    return await getServerSession(authOptions)
 }

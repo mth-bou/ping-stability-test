@@ -17,14 +17,15 @@ export const GoogleSignInButton = () => {
 
     return (
         <Button
+            variant="ghost"
             onClick={handleClick}
-            className="w-full flex items-center font-semibold justify-center h-14 px-6 mt-4 text-xl transition-colors duration-300 border-2 rounded-lg focus:shadow-outline hover:bg-slate-200"
+            className="w-full flex items-center font-semibold justify-center h-14 px-6 mt-4 text-xl transition-colors duration-300 border-2 rounded-lg focus:shadow-outline hover:bg-accent"
         >
             {isPending ? (
                 <Loader />
             ) : (
                 <>
-                <FontAwesomeIcon icon={faGoogle} />
+                <FontAwesomeIcon icon={faGoogle} style={{ color: "#EB493B"}} />
                 <span className="ml-4">Continue with Google</span>
                 </>
             )}
@@ -42,8 +43,9 @@ export const GithubSignInButton = () => {
 
     return (
         <Button
+            variant="ghost"
             onClick={handleClick}
-            className="w-full flex items-center font-semibold justify-center h-14 px-6 mt-4 text-xl transition-colors duration-300 border-2 rounded-lg focus:shadow-outline hover:bg-slate-200"
+            className="w-full flex items-center font-semibold justify-center h-14 px-6 mt-4 text-xl transition-colors duration-300 border-2 rounded-lg focus:shadow-outline"
         >
             {isPending ? (
                 <Loader />
