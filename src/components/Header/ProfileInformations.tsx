@@ -4,8 +4,8 @@ import ThemeToggle from "@/theme/ThemeToggle";
 const ProfileInformations = () => {
     return (
 
-        <div className="flex flex-shrink-0 items-center space-x-4 text-white">
-            <div className="flex flex-shrink-0 items-center space-x-4 text-white">
+        <div className="flex flex-shrink-0 items-center space-x-4">
+            <div className="flex flex-shrink-0 items-center space-x-4">
 
                 <ThemeToggle />
 
