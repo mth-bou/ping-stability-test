@@ -33,6 +33,7 @@ model User {
   id           String   @id @default(cuid())
   name         String?
   email        String   @unique
+  password     String
   profileViews Int      @default(0)
   role         String   @default("USER")
   city         String?
@@ -63,6 +64,7 @@ model VerificationToken {
 model Test {
   id             Int      @id @default(autoincrement())
   serverId       Int
+  userId         String?
   startTime      DateTime
   endTime        DateTime
   pingMin        Int
@@ -76,6 +78,5 @@ model Test {
   testStatus     String
   createdAt      DateTime
 
-  User   User?   @relation(fields: [userId], references: [id])
-  userId String?
+  User User? @relation(fields: [userId], references: [id])
 }

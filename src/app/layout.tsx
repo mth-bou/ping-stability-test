@@ -1,6 +1,6 @@
 import type { Metadata } from 'next'
 import { Inter } from 'next/font/google'
-import './globals.css'
+import './../styles/globals.css'
 import { clsx } from "clsx";
 import ThemeProvider from "@/theme/ThemeProvider";
 import Header from "@/layout/Header";
@@ -18,9 +18,10 @@ export const metadata: Metadata = {
 
 type LayoutProps = {
   children: React.ReactNode;
+  modal?: React.ReactNode;
 };
 
-export default function RootLayout({ children }: LayoutProps) {
+export default function RootLayout({ children, modal }: LayoutProps) {
   return (
     <html lang="fr" className="h-full" suppressHydrationWarning>
       <body className={clsx(inter.className, 'bg-background h-full')}>
@@ -33,6 +34,7 @@ export default function RootLayout({ children }: LayoutProps) {
                     <Footer />
                 </div>
             </div>
+            {modal}
         </ThemeProvider>
       </body>
     </html>

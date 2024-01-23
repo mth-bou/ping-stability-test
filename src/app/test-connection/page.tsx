@@ -1,10 +1,10 @@
 'use client';
 import React from 'react';
-import {Data} from "@/pages/api/ping";
+import {Data} from "@/pages/api/test-connection/create";
 
 async function performPing() {
     try {
-        const response = await fetch('/api/ping', {
+        const response = await fetch('/api/test-connection/create', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',

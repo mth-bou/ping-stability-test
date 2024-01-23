@@ -1,5 +1,5 @@
 import type { GetServerSidePropsContext, NextApiRequest, NextApiResponse } from "next"
-import type {NextAuthOptions, User} from "next-auth"
+import type {DefaultUser, NextAuthOptions, User} from "next-auth"
 import { getServerSession } from "next-auth"
 import {PrismaAdapter} from '@next-auth/prisma-adapter';
 import {prisma} from "@/lib/prisma";
@@ -78,6 +78,6 @@ export const authOptions = {
 } satisfies NextAuthOptions
 
 // Use it in server contexts
-export function auth(...args: [GetServerSidePropsContext["req"], GetServerSidePropsContext["res"]] | [NextApiRequest, NextApiResponse] | []) {
+export function getAuthSession(...args: [GetServerSidePropsContext["req"], GetServerSidePropsContext["res"]] | [NextApiRequest, NextApiResponse] | []) {
     return getServerSession(...args, authOptions)
 }

@@ -9,9 +9,14 @@ export type Data = {
 
 export default function handler(req: NextApiRequest, res: NextApiResponse<Data>) {
     if (req.method === 'POST') {
-        const { host } = req.body; // Assurez-vous de valider et nettoyer cette entrée
+        const { host } = req.body;
 
-        exec(`ping -c 4 ${host}`, (error, stdout, stderr) => {
+        // Validation de base de l'hôte
+        if (!host || typeof host !== 'string' || host.length === 0) {
+            return res.status(400).json({ message: "Host non valide" });
+        }
+
+        exec(`ping ${host}`, (error, stdout, stderr) => {
 
             if (error) return res.status(500).json({ message: `Erreur d'exécution du ping : ${error.message}` });
             if (stderr) return res.status(500).json({ message: `Erreur de ping : ${stderr}` });
