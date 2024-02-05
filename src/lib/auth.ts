@@ -1,5 +1,4 @@
-import type { GetServerSidePropsContext, NextApiRequest, NextApiResponse } from "next"
-import type {DefaultUser, NextAuthOptions, User} from "next-auth"
+import type {AuthOptions} from "next-auth"
 import { getServerSession } from "next-auth"
 import {PrismaAdapter} from '@next-auth/prisma-adapter';
 import {prisma} from "@/lib/prisma";
@@ -22,7 +21,7 @@ export const authOptions = {
                     username:   profile.login,
                     name:       profile.name,
                     email:      profile.email,
-                    image:      profile.avatar_url
+                    avatar:      profile.avatar_url
                 }
             }
         }),
@@ -38,6 +37,7 @@ export const authOptions = {
             }
         }),
         CredentialsProvider({
+            type: "credentials",
             name: "S'identifier",
             credentials: {
                 email: {
@@ -51,31 +51,40 @@ export const authOptions = {
                 }
             },
             async authorize(credentials) {
-                if (!credentials || !credentials.email || !credentials.password) return null;
+                /*if (!credentials) return null;
 
-                const dbUser = await prisma.user.findFirst({
-                    where: { email: credentials.email },
+                // Are email and password filled ?
+                const { email, password } = credentials as { email: string, password: string };
+                if (!email || !password) return null;
+
+                // Check if user exists
+                const user = await prisma.user.findUnique({
+                    where: { email: email },
                 });
+                if (!user) return null;
 
-                // Verifiy password here
-                // In production, password should be encrypted using something like bcrypt...
-                if (dbUser && dbUser.password === credentials.password) {
-                    const { password, createdAt, id, ...dbWithoutPassword} = dbUser;
-                    return dbWithoutPassword as User;
-                }
+                const isPasswordValid = bcrypt.compare(credentials.password, user.password);
 
-                return null;
+                return null;*/
             }
         })
     ],
+    secret: process.env.NEXTAUTH_URL,
+    pages: {
+        signIn: '/auth/signin',
+        signOut: '/auth/signout',
+        error: '/auth/error',
+        verifyRequest: '/auth/verify-request',
+    },
     callbacks: {
-        session({ session, user }) {
+        async session({ session, user }) {
             if (!session?.user) return session;
             session.user.id = user.id;
             return session;
         }
-    }
-} satisfies NextAuthOptions
+    },
+
+} satisfies AuthOptions
 
 // Use it in server contexts
 export const getAuthSession = async () => {

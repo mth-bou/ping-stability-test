@@ -14,16 +14,16 @@ const Header = async () => {
             <h2 className="text-2xl font-bold mx-auto">Ping Stability Test</h2>
 
             <ThemeToggle />
-            
+
             {session?.user ?
-                <ProfileInformations/>
+                <ProfileInformations />
                 :
                 <Button
                     variant="ghost"
                     size="sm"
                     asChild
                 >
-                    <Link href="/auth/login">
+                    <Link href="/auth/signin">
                         <User/>
                     </Link>
                 </Button>
