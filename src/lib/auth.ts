@@ -6,6 +6,7 @@ import GithubProvider from 'next-auth/providers/github';
 import GoogleProvider from 'next-auth/providers/google';
 import CredentialsProvider from "next-auth/providers/credentials"
 import {env} from './env';
+import bcrypt from 'bcrypt';
 
 // You'll need to import and pass this
 // to `NextAuth` in `app/api/auth/[...nextauth]/route.ts`
@@ -51,7 +52,7 @@ export const authOptions = {
                 }
             },
             async authorize(credentials) {
-                /*if (!credentials) return null;
+                if (!credentials) return null;
 
                 // Are email and password filled ?
                 const { email, password } = credentials as { email: string, password: string };
@@ -65,7 +66,11 @@ export const authOptions = {
 
                 const isPasswordValid = bcrypt.compare(credentials.password, user.password);
 
-                return null;*/
+                if (isPasswordValid) {
+                    return user;
+                }
+
+                return null;
             }
         })
     ],

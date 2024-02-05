@@ -3,6 +3,7 @@ import React from 'react';
 import { Separator } from "@/components/ui/separator"
 import {GithubSignInButton, GoogleSignInButton} from "@/components/auth/authButtons";
 import {CredentialsForm} from "@/components/auth/credentialsForm";
+import {Link} from "@nextui-org/link";
 
 
 const loginForm = () => {
@@ -15,6 +16,10 @@ const loginForm = () => {
 
             <GithubSignInButton />
             <GoogleSignInButton />
+
+            <div className="mt-4 text-center">
+                <Link href="/auth/signup" className="text-accent">Don't have account ? Create one</Link>
+            </div>
         </div>
     );
 };
