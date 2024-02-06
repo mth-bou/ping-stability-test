@@ -5,6 +5,7 @@ import {Form, FormControl, FormField, FormItem, FormMessage} from "@/components/
 import {Input} from "@/components/ui/input";
 import {useForm} from "react-hook-form";
 import {zodResolver} from "@hookform/resolvers/zod";
+import {Button} from "@/components/ui/button";
 
 const signupFormSchema = z.object({
     name: z.string().min(2, {
@@ -118,9 +119,12 @@ const SignupForm = () => {
                         </FormItem>
                     )}
                 />
-                <FormItem>
-                    <button type="submit" className="button">Sign Up</button>
-                </FormItem>
+                <Button
+                    className="w-20 bg-primary"
+                    type="submit"
+                >
+                    Login
+                </Button>
             </form>
         </Form>
     );

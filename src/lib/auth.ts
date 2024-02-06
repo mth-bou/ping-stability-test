@@ -64,7 +64,10 @@ export const authOptions = {
                 });
                 if (!user) return null;
 
-                const isPasswordValid = bcrypt.compare(credentials.password, user.password);
+                const isPasswordValid = false;
+                if (user.password) {
+                    const isPasswordValid = bcrypt.compare(credentials.password, user.password);
+                }
 
                 if (isPasswordValid) {
                     return user;

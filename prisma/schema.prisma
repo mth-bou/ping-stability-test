@@ -12,7 +12,7 @@ datasource db {
 
 model Account {
   id                String  @id @default(cuid())
-  userId            String
+  userId            String  @unique
   type              String
   provider          String
   providerAccountId String
@@ -31,9 +31,9 @@ model Account {
 
 model User {
   id            String    @id @default(cuid())
-  username      String?
-  name          String?
   email         String    @unique
+  username      String    @unique
+  name          String?
   emailVerified DateTime?
   password      String?
   profileViews  Int       @default(0)
@@ -76,7 +76,7 @@ model VerificationToken {
 model Test {
   id             Int      @id @default(autoincrement())
   serverId       Int
-  userId         String?
+  userId         String   @unique
   startTime      DateTime
   endTime        DateTime
   pingMin        Int

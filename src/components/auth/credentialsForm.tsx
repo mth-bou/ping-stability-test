@@ -83,7 +83,7 @@ export const CredentialsForm = (props: CredentialsFormProps) => {
                     )}
                 />
                 <Button
-                    className="w-20 bg-primary hover:bg-primary/80"
+                    className="w-20 bg-primary"
                     type="submit"
                 >Login</Button>
             </form>

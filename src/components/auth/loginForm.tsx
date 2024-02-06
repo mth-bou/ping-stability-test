@@ -18,7 +18,7 @@ const loginForm = () => {
             <GoogleSignInButton />
 
             <div className="mt-4 text-center">
-                <Link href="/auth/signup" className="text-accent">Don't have account ? Create one</Link>
+                <Link href="/auth/signup" className="text-muted-foreground hover:underline">Don't have account ? Create one</Link>
             </div>
         </div>
     );

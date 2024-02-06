@@ -10,7 +10,7 @@ const Header = async () => {
     const session = await getAuthSession();
 
     return (
-        <header className="h-16 flex items-center relative justify-end px-5 space-x-10 bg-primary-background border-b">
+        <header className="h-16 flex items-center relative justify-end px-5 space-x-2 bg-primary-background border-b">
             <h2 className="text-2xl font-bold mx-auto">Ping Stability Test</h2>
 
             <ThemeToggle />
