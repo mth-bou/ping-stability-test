@@ -1,5 +1,5 @@
 import type {AuthOptions} from "next-auth"
-import { getServerSession } from "next-auth"
+import {getServerSession, NextAuthOptions} from "next-auth"
 import {PrismaAdapter} from '@next-auth/prisma-adapter';
 import {prisma} from "@/lib/prisma";
 import GithubProvider from 'next-auth/providers/github';
@@ -10,8 +10,12 @@ import bcrypt from 'bcrypt';
 
 // You'll need to import and pass this
 // to `NextAuth` in `app/api/auth/[...nextauth]/route.ts`
-export const authOptions = {
+export const authOptions: NextAuthOptions = {
     adapter: PrismaAdapter(prisma),
+    session: {
+        strategy: "jwt",
+    },
+    secret: process.env.NEXTAUTH_SECRET,
     providers: [
         GithubProvider({
             clientId: env.GITHUB_ID as string,
@@ -52,32 +56,38 @@ export const authOptions = {
                 }
             },
             async authorize(credentials) {
-                if (!credentials) return null;
 
-                // Are email and password filled ?
-                const { email, password } = credentials as { email: string, password: string };
-                if (!email || !password) return null;
+                if(!credentials) return null;
 
-                // Check if user exists
-                const user = await prisma.user.findUnique({
-                    where: { email: email },
+                if (credentials?.email || credentials?.password) {
+                    return null;
+                }
+
+                const existingUser = await prisma.user.findUnique({
+                    where: {
+                        email: credentials.email
+                    }
                 });
-                if (!user) return null;
 
-                const isPasswordValid = false;
-                if (user.password) {
-                    const isPasswordValid = bcrypt.compare(credentials.password, user.password);
+                if (!existingUser) return null;
+
+                let passwordMatch;
+                if (existingUser.password) {
+                    passwordMatch = await bcrypt.compare(credentials.password, existingUser.password);
                 }
 
-                if (isPasswordValid) {
-                    return user;
-                }
+                if (!passwordMatch) return null;
 
-                return null;
+                return {
+                    id: existingUser.id,
+                    username: existingUser.username,
+                    email: existingUser.email,
+                    city: existingUser.city,
+                    country: existingUser.country,
+                }
             }
         })
     ],
-    secret: process.env.NEXTAUTH_URL,
     pages: {
         signIn: '/auth/signin',
         signOut: '/auth/signout',
@@ -92,7 +102,7 @@ export const authOptions = {
         }
     },
 
-} satisfies AuthOptions
+}
 
 // Use it in server contexts
 export const getAuthSession = async () => {

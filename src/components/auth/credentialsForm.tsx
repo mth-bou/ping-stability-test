@@ -16,12 +16,8 @@ interface CredentialsFormProps {
 }
 
 const loginFormSchema = z.object({
-    email: z.string().min(5, {
-        message: "Email must be at least 5 characters."
-    }),
-    password: z.string().min(8, {
-        message: "Password must be at least 8 characters."
-    })
+    email: z.string().min(1, "Email is required").min(5, "Email must be at least 5 characters.").email("Invalid email"),
+    password: z.string().min(8, "Password must be at least 8 characters")
 });
 
 export const CredentialsForm = (props: CredentialsFormProps) => {
@@ -36,16 +32,18 @@ export const CredentialsForm = (props: CredentialsFormProps) => {
         },
     });
 
-    const onSubmit = async (data: z.infer<typeof loginFormSchema>) => {
+    const onSubmit = async (values: z.infer<typeof loginFormSchema>) => {
 
-        const signInResponse = await signIn("credentials", {
-            email: data.email,
-            password: data.password,
-            redirect: false,
-        })
+        const signInResponse = await signIn(
+            "credentials",
+            {
+                email: values.email,
+                password: values.password,
+                redirect: false,
+            })
 
         if (signInResponse?.error) {
-            console.log("Error : ", signInResponse);
+            console.log("Error : ", signInResponse.error);
             setError("Your email or password is wrong.");
         } else {
             router.push("/");

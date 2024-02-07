@@ -17,16 +17,10 @@ const signupFormSchema = z.object({
     email: z.string().min(5, {
         message: "Email must be at least 5 characters."
     }).email("Invalid email"),
-    password: z.string().min(1, "Password is required").min(8, {
-        message: "Password must be at least 8 characters."
+    password: z.string().min(1, "Password is required").min(7, {
+        message: "Password must be at least 7 characters."
     }),
-    confirmPassword: z.string().min(1, "Password confirmation is required"),
-    city: z.string().min(3, {
-        message: "City must be at least 3 characters."
-    }),
-    country: z.string().min(3, {
-        message: "Country must be at least 3 characters."
-    })
+    confirmPassword: z.string().min(1, "Password confirmation is required")
 }).refine(data => data.password === data.confirmPassword, {
     message: "Passwords don't match",
     path: ["confirmPassword"]
@@ -54,8 +48,23 @@ const SignupForm = () => {
             headers: {
                 "Content-Type": "application/json"
             },
-            body: JSON.stringify(values)
+            body: JSON.stringify({
+                name: values.name,
+                username: values.username,
+                email: values.email,
+                password: values.password,
+                city: values.city,
+                country: values.country
+            })
         });
+
+        console.log(response);
+
+        if (response.ok) {
+            router.push("/auth/signin");
+        } else {
+            console.error('Registration failed');
+        }
     }
 
     return (
@@ -72,6 +81,7 @@ const SignupForm = () => {
                             <FormControl>
                                 <Input {...field} type="text" placeholder="Name" />
                             </FormControl>
+                            <FormMessage className="text-left" />
                         </FormItem>
                     )}
                 />
@@ -83,6 +93,7 @@ const SignupForm = () => {
                             <FormControl>
                                 <Input {...field} type="text" placeholder="Username" />
                             </FormControl>
+                            <FormMessage className="text-left" />
                         </FormItem>
                     )}
                 />
@@ -94,6 +105,7 @@ const SignupForm = () => {
                             <FormControl>
                                 <Input {...field} type="email" placeholder="Email" />
                             </FormControl>
+                            <FormMessage className="text-left" />
                         </FormItem>
                     )}
                 />
@@ -105,6 +117,19 @@ const SignupForm = () => {
                             <FormControl>
                                 <Input {...field} type="password" placeholder="Password" />
                             </FormControl>
+                            <FormMessage className="text-left" />
+                        </FormItem>
+                    )}
+                />
+                <FormField
+                    control={form.control}
+                    name="confirmPassword"
+                    render={({ field }) => (
+                        <FormItem>
+                            <FormControl>
+                                <Input {...field} type="password" placeholder="Password Confirmation" />
+                            </FormControl>
+                            <FormMessage className="text-left" />
                         </FormItem>
                     )}
                 />
@@ -116,6 +141,7 @@ const SignupForm = () => {
                             <FormControl>
                                 <Input {...field} type="text" placeholder="City" />
                             </FormControl>
+                            <FormMessage className="text-left" />
                         </FormItem>
                     )}
                 />
@@ -127,6 +153,7 @@ const SignupForm = () => {
                             <FormControl>
                                 <Input {...field} type="text" placeholder="Country" />
                             </FormControl>
+                            <FormMessage className="text-left" />
                         </FormItem>
                     )}
                 />
