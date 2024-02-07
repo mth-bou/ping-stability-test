@@ -11,22 +11,27 @@ const signupFormSchema = z.object({
     name: z.string().min(2, {
         message: "Username must be at least 2 characters."
     }),
-    username: z.string().min(5, {
-        message: "Username must be at least 5 characters."
+    username: z.string().min(3, {
+        message: "Username must be at least 3 characters."
     }),
     email: z.string().min(5, {
         message: "Email must be at least 5 characters."
-    }),
-    password: z.string().min(8, {
+    }).email("Invalid email"),
+    password: z.string().min(1, "Password is required").min(8, {
         message: "Password must be at least 8 characters."
     }),
+    confirmPassword: z.string().min(1, "Password confirmation is required"),
     city: z.string().min(3, {
         message: "City must be at least 3 characters."
     }),
     country: z.string().min(3, {
         message: "Country must be at least 3 characters."
     })
+}).refine(data => data.password === data.confirmPassword, {
+    message: "Passwords don't match",
+    path: ["confirmPassword"]
 });
+
 const SignupForm = () => {
     const router = useRouter();
     const [error, setError] = useState<string | null>(null);
@@ -43,8 +48,14 @@ const SignupForm = () => {
         },
     });
 
-    const onSubmit = (data: z.infer<typeof signupFormSchema>) => {
-
+    const onSubmit = async (values: z.infer<typeof signupFormSchema>) => {
+        const response = await fetch("/api/users", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify(values)
+        });
     }
 
     return (
