@@ -43,7 +43,6 @@ export const CredentialsForm = (props: CredentialsFormProps) => {
             })
 
         if (signInResponse?.error) {
-            console.log("Error : ", signInResponse.error);
             setError("Your email or password is wrong.");
         } else {
             router.push("/");

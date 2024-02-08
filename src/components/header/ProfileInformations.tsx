@@ -3,10 +3,18 @@ import {getAuthSession} from "@/lib/auth";
 import {notFound} from "next/navigation";
 import {Avatar, AvatarFallback, AvatarImage} from "@/components/ui/avatar";
 
-const formatInitials = (name: string) => name
-    .split('_')
-    .map(nom => nom[0].toUpperCase())
-    .join('')
+const formatInitials = (name: string | null | undefined) => {
+    // Vérifiez si name existe et n'est pas juste une chaîne de caractères vide
+    if (!name || name.trim().length === 0) {
+        return '';
+    }
+
+    // Utilisez une expression régulière pour diviser name sur les espaces et les underscores
+    return name
+        .split(/[\s_]+/)
+        .map(nom => nom[0] ? nom[0].toUpperCase() : '')
+        .join('');
+};
 
 const ProfileInformations = async () => {
     const session = await getAuthSession();

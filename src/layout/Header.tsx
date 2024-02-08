@@ -5,6 +5,10 @@ import {User} from "lucide-react";
 import {Button} from "@/components/ui/button";
 import {getAuthSession} from "@/lib/auth";
 import ThemeToggle from "@/theme/ThemeToggle";
+import {DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger} from "@/components/ui/dropdown-menu";
+import LogOutButton from "@/components/auth/logoutButton";
+import {signOut} from "next-auth/react";
+import ProfileButton from "@/components/auth/profileButton";
 
 const Header = async () => {
     const session = await getAuthSession();
@@ -16,7 +20,20 @@ const Header = async () => {
             <ThemeToggle />
 
             {session?.user ?
-                <ProfileInformations />
+                <DropdownMenu>
+                    <DropdownMenuTrigger>
+                        <ProfileInformations />
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent>
+                        <DropdownMenuItem>
+                            <ProfileButton />
+                        </DropdownMenuItem>
+                        <DropdownMenuItem>
+                            <LogOutButton />
+                        </DropdownMenuItem>
+                    </DropdownMenuContent>
+                </DropdownMenu>
+
                 :
                 <Button
                     variant="ghost"

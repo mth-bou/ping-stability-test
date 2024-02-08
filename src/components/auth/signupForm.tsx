@@ -20,7 +20,9 @@ const signupFormSchema = z.object({
     password: z.string().min(1, "Password is required").min(7, {
         message: "Password must be at least 7 characters."
     }),
-    confirmPassword: z.string().min(1, "Password confirmation is required")
+    confirmPassword: z.string().min(1, "Password confirmation is required"),
+    city: z.string(),
+    country: z.string()
 }).refine(data => data.password === data.confirmPassword, {
     message: "Passwords don't match",
     path: ["confirmPassword"]

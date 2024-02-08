@@ -1,5 +1,5 @@
-import type {AuthOptions} from "next-auth"
-import {getServerSession, NextAuthOptions} from "next-auth"
+import type { NextAuthOptions } from "next-auth"
+import { getServerSession } from "next-auth"
 import {PrismaAdapter} from '@next-auth/prisma-adapter';
 import {prisma} from "@/lib/prisma";
 import GithubProvider from 'next-auth/providers/github';
@@ -57,34 +57,44 @@ export const authOptions: NextAuthOptions = {
             },
             async authorize(credentials) {
 
-                if(!credentials) return null;
+                try {
+                    if(!credentials || !credentials.email || !credentials.password) {
+                        console.error("Credentials are missing");
+                        return null;
+                    }
 
-                if (credentials?.email || credentials?.password) {
+                    const existingUser = await prisma.user.findUnique({
+                        where: {
+                            email: credentials.email
+                        }
+                    });
+
+                    if (!existingUser) {
+                        console.error("No user found with this email");
+                        return null;
+                    }
+
+                    const passwordMatch = existingUser.password && await bcrypt.compare(credentials.password, existingUser.password);
+
+                    if (!passwordMatch) {
+                        console.error("Incorrect password");
+                        return null;
+                    }
+
+                    return {
+                        id: `${existingUser.id}`,
+                        email: existingUser.email,
+                        username: existingUser.username,
+                        name: existingUser.name,
+                        image: existingUser.avatar,
+                        city: existingUser.city,
+                        country: existingUser.country,
+                    }
+                } catch (error: any) {
+                    console.error("Authentication error : ", error.message);
                     return null;
                 }
 
-                const existingUser = await prisma.user.findUnique({
-                    where: {
-                        email: credentials.email
-                    }
-                });
-
-                if (!existingUser) return null;
-
-                let passwordMatch;
-                if (existingUser.password) {
-                    passwordMatch = await bcrypt.compare(credentials.password, existingUser.password);
-                }
-
-                if (!passwordMatch) return null;
-
-                return {
-                    id: existingUser.id,
-                    username: existingUser.username,
-                    email: existingUser.email,
-                    city: existingUser.city,
-                    country: existingUser.country,
-                }
             }
         })
     ],
@@ -95,9 +105,24 @@ export const authOptions: NextAuthOptions = {
         verifyRequest: '/auth/verify-request',
     },
     callbacks: {
-        async session({ session, user }) {
-            if (!session?.user) return session;
-            session.user.id = user.id;
+        async jwt({ token, user}) {
+
+            if (user) {
+                return {
+                    ...token,
+                    username: user.username,
+                    picture: user.image
+                }
+            }
+
+            return token;
+        },
+        async session({ session, token }) {
+            //if (user) session.user.id = user.id;
+            if (token.user) {
+                session.user = { ...session.user, ...token.user };
+            }
+
             return session;
         }
     },
