@@ -1,7 +1,7 @@
 import React from "react";
-import UserProfileSettingsItem from "@/components/Sidebar/UserProfileSettingsItem";
-import TestConnectionItem from "@/components/Sidebar/TestConnectionItem";
-import HomeItem from "@/components/Sidebar/HomeItem";
+import UserProfileSettingsItem from "@/components/sidebar/UserProfileSettingsItem";
+import TestConnectionItem from "@/components/sidebar/TestConnectionItem";
+import HomeItem from "@/components/sidebar/HomeItem";
 
 const Sidebar = () => {
 

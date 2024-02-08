@@ -1,5 +1,4 @@
-import type { GetServerSidePropsContext, NextApiRequest, NextApiResponse } from "next"
-import type {NextAuthOptions, User} from "next-auth"
+import type { NextAuthOptions } from "next-auth"
 import { getServerSession } from "next-auth"
 import {PrismaAdapter} from '@next-auth/prisma-adapter';
 import {prisma} from "@/lib/prisma";
@@ -7,11 +6,16 @@ import GithubProvider from 'next-auth/providers/github';
 import GoogleProvider from 'next-auth/providers/google';
 import CredentialsProvider from "next-auth/providers/credentials"
 import {env} from './env';
+import bcrypt from 'bcrypt';
 
 // You'll need to import and pass this
 // to `NextAuth` in `app/api/auth/[...nextauth]/route.ts`
-export const authOptions = {
+export const authOptions: NextAuthOptions = {
     adapter: PrismaAdapter(prisma),
+    session: {
+        strategy: "jwt",
+    },
+    secret: process.env.NEXTAUTH_SECRET,
     providers: [
         GithubProvider({
             clientId: env.GITHUB_ID as string,
@@ -22,7 +26,7 @@ export const authOptions = {
                     username:   profile.login,
                     name:       profile.name,
                     email:      profile.email,
-                    image:      profile.avatar_url
+                    avatar:      profile.avatar_url
                 }
             }
         }),
@@ -38,6 +42,7 @@ export const authOptions = {
             }
         }),
         CredentialsProvider({
+            type: "credentials",
             name: "S'identifier",
             credentials: {
                 email: {
@@ -51,33 +56,79 @@ export const authOptions = {
                 }
             },
             async authorize(credentials) {
-                if (!credentials || !credentials.email || !credentials.password) return null;
 
-                const dbUser = await prisma.user.findFirst({
-                    where: { email: credentials.email },
-                });
+                try {
+                    if(!credentials || !credentials.email || !credentials.password) {
+                        console.error("Credentials are missing");
+                        return null;
+                    }
 
-                // Verifiy password here
-                // In production, password should be encrypted using something like bcrypt...
-                if (dbUser && dbUser.password === credentials.password) {
-                    const { password, createdAt, id, ...dbWithoutPassword} = dbUser;
-                    return dbWithoutPassword as User;
+                    const existingUser = await prisma.user.findUnique({
+                        where: {
+                            email: credentials.email
+                        }
+                    });
+
+                    if (!existingUser) {
+                        console.error("No user found with this email");
+                        return null;
+                    }
+
+                    const passwordMatch = existingUser.password && await bcrypt.compare(credentials.password, existingUser.password);
+
+                    if (!passwordMatch) {
+                        console.error("Incorrect password");
+                        return null;
+                    }
+
+                    return {
+                        id: `${existingUser.id}`,
+                        email: existingUser.email,
+                        username: existingUser.username,
+                        name: existingUser.name,
+                        image: existingUser.avatar,
+                        city: existingUser.city,
+                        country: existingUser.country,
+                    }
+                } catch (error: any) {
+                    console.error("Authentication error : ", error.message);
+                    return null;
                 }
 
-                return null;
             }
         })
     ],
+    pages: {
+        signIn: '/auth/signin',
+        error: '/auth/error',
+        verifyRequest: '/auth/verify-request',
+    },
     callbacks: {
-        session({ session, user }) {
-            if (!session?.user) return session;
-            session.user.id = user.id;
+        async jwt({ token, user}) {
+
+            if (user) {
+                return {
+                    ...token,
+                    username: user.username,
+                    picture: user.image
+                }
+            }
+
+            return token;
+        },
+        async session({ session, token }) {
+            //if (user) session.user.id = user.id;
+            if (token.user) {
+                session.user = { ...session.user, ...token.user };
+            }
+
             return session;
         }
-    }
-} satisfies NextAuthOptions
+    },
+
+}
 
 // Use it in server contexts
-export function auth(...args: [GetServerSidePropsContext["req"], GetServerSidePropsContext["res"]] | [NextApiRequest, NextApiResponse] | []) {
-    return getServerSession(...args, authOptions)
+export const getAuthSession = async () => {
+    return await getServerSession(authOptions)
 }
