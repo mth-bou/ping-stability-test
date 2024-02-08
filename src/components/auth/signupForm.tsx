@@ -6,6 +6,7 @@ import {Input} from "@/components/ui/input";
 import {useForm} from "react-hook-form";
 import {zodResolver} from "@hookform/resolvers/zod";
 import {Button} from "@/components/ui/button";
+import {useToast} from "@/components/ui/use-toast";
 
 const signupFormSchema = z.object({
     name: z.string().min(2, {
@@ -30,7 +31,7 @@ const signupFormSchema = z.object({
 
 const SignupForm = () => {
     const router = useRouter();
-    const [error, setError] = useState<string | null>(null);
+    const { toast } = useToast();
 
     const form = useForm<z.infer<typeof signupFormSchema>>({
         resolver: zodResolver(signupFormSchema),
@@ -60,21 +61,20 @@ const SignupForm = () => {
             })
         });
 
-        console.log(response);
-
         if (response.ok) {
             router.push("/auth/signin");
         } else {
-            console.error('Registration failed');
+            toast({
+                title: "Error",
+                description: "Oups! Registration failed. Please try again.",
+                variant: "destructive"
+            })
         }
     }
 
     return (
         <Form {...form}>
             <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4 text-center">
-                {error &&
-                    <div className="error-message">{error}</div>
-                }
                 <FormField
                     control={form.control}
                     name="name"

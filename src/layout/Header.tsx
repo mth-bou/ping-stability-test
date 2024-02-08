@@ -7,7 +7,6 @@ import {getAuthSession} from "@/lib/auth";
 import ThemeToggle from "@/theme/ThemeToggle";
 import {DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger} from "@/components/ui/dropdown-menu";
 import LogOutButton from "@/components/auth/logoutButton";
-import {signOut} from "next-auth/react";
 import ProfileButton from "@/components/auth/profileButton";
 
 const Header = async () => {

@@ -8,6 +8,8 @@ import Footer from "@/layout/Footer";
 import React from "react";
 import Sidebar from "@/layout/Sidebar";
 import Main from "@/layout/Main";
+import {Toaster} from "@/components/ui/toaster";
+import SessionProviderContext from "@/context/SessionProviderContext";
 
 const inter = Inter({subsets: ['latin']})
 
@@ -26,15 +28,18 @@ export default function RootLayout({children, modal}: LayoutProps) {
         <html lang="fr" className="h-full" suppressHydrationWarning>
         <body className={clsx(inter.className, 'bg-background h-full')}>
         <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
-            <div className="h-screen w-full relative flex overflow-hidden">
-                <Sidebar/>
-                <div className="w-full h-full flex flex-col justify-between">
-                    <Header/>
-                    <Main children={children}/>
-                    <Footer/>
+            <SessionProviderContext>
+                <div className="h-screen w-full relative flex overflow-hidden">
+                    <Sidebar/>
+                    <div className="w-full h-full flex flex-col justify-between">
+                        <Header/>
+                        <Main children={children}/>
+                        <Footer/>
+                    </div>
+                    <Toaster />
                 </div>
-            </div>
-            {modal}
+                {modal}
+            </SessionProviderContext>
         </ThemeProvider>
         </body>
         </html>

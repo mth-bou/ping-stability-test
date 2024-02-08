@@ -9,6 +9,7 @@ import {Input} from "@/components/ui/input";
 import * as z from "zod";
 import {useForm} from "react-hook-form";
 import {zodResolver} from "@hookform/resolvers/zod";
+import {useToast} from "@/components/ui/use-toast";
 
 
 interface CredentialsFormProps {
@@ -22,7 +23,7 @@ const loginFormSchema = z.object({
 
 export const CredentialsForm = (props: CredentialsFormProps) => {
     const router = useRouter();
-    const [error, setError] = useState<string | null>(null);
+    const { toast } = useToast();
 
     const form = useForm<z.infer<typeof loginFormSchema>>({
         resolver: zodResolver(loginFormSchema),
@@ -43,7 +44,11 @@ export const CredentialsForm = (props: CredentialsFormProps) => {
             })
 
         if (signInResponse?.error) {
-            setError("Your email or password is wrong.");
+            toast({
+                title: "Error",
+                description: "Oups! Your email or password is wrong.",
+                variant: "destructive"
+            })
         } else {
             router.push("/");
         }
@@ -52,9 +57,6 @@ export const CredentialsForm = (props: CredentialsFormProps) => {
     return (
         <Form {...form}>
             <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4 text-center">
-                {error &&
-                    <div className="error-message">{error}</div>
-                }
                 <FormField
                     control={form.control}
                     name="email"
