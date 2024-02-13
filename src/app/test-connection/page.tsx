@@ -1,6 +1,5 @@
 'use client';
-import React, {useEffect, useState} from 'react';
-import {Data} from "@/pages/api/ping/create";
+import React, {useEffect, useRef, useState} from 'react';
 import {
     VictoryLine,
     VictoryChart,
@@ -10,28 +9,15 @@ import {
     VictoryTooltip,
     VictoryTheme
 } from "victory";
-import {Button} from "@/components/ui/button";
+import { Button } from "@/components/ui/button";
 import { useTheme } from "next-themes";
 
-/*async function performPing() {
-    try {
-        const response = await fetch('/api/ping/create', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({ host: 'google.com' }),
-        });
-        const data: Data = await response.json();
-        console.log(data);
-    } catch (error) {
-        console.error('Erreur lors de la requête de ping', error);
-    }
-}*/
 const TestConnection: React.FC = () => {
 
     const { theme } = useTheme();
-    const [ pingResults, setPingResults ] = useState<Data[]>([]);
+    const [ pingResults, setPingResults ] = useState(null);
+    const [ isPinging, setIsPinging ] = useState(false);
+    const intervalIdRef = useRef<NodeJS.Timeout | null>(null);
 
     const chartStyle = theme === 'dark' ? {
         background: { fill: "#333" }, // Pour fond sombre
@@ -43,50 +29,39 @@ const TestConnection: React.FC = () => {
         axis: { stroke: "#333", tickLabels: { fill: "#333" } }, // Axes noirs
     };
 
-    const listenSSE = (callback: (event: MessageEvent<any>) => { cancel?: true } | undefined) => {
-        const eventSource = new EventSource("/api/ping/create?host=google.com", {
-            withCredentials: true,
-        });
-        console.info("Listening on SEE", eventSource);
-        eventSource.onmessage = (event) => {
-            const result = callback(event);
-            if (result?.cancel) {
-                console.info("Closing SSE");
-                eventSource.close();
-            }
-        };
-
-        return {
-            close: () => {
-                console.info("Closing SSE");
-                eventSource.close();
-            },
-        };
+    const handlePingTest = () => {
+        setIsPinging(!isPinging);
     }
 
-    const handlePingTest = async () => {
-        listenSSE((event: MessageEvent<string>) => {
-                console.log("SSE Message:", event.data);
-                try {
-                    const data = JSON.parse(event.data);
-                    console.log(data);
-                    // Mettez à jour votre état ou UI ici avec les données de ping
-                    setPingResults((prevResults) => [...prevResults, data]);
-                } catch (error) {
-                    console.error("Erreur de parsing JSON:", error);
-                }
-                return undefined;
+    useEffect(() => {
+        if (isPinging) {
+            // Permet de récupérer l'id de l'intervalle pour pouvoir le nettoyer à chaque fois que le composant est rendu
+            intervalIdRef.current = setInterval(() => {
+                fetch('/api/pingHost?host=google.com')
+                    .then(response => response.json())
+                    .then(data => {
+                        setPingResults(data.result);
+                        console.log(data.result);
+                    });
+            }, 1000);
+        } else if (!isPinging && intervalIdRef.current) {
+            clearInterval(intervalIdRef.current);
+            intervalIdRef.current = null;
+        }
+
+        return () => {
+            if (intervalIdRef.current) {
+                clearInterval(intervalIdRef.current);
+                intervalIdRef.current = null;
             }
-        );
-    }
+        }
+    }, [isPinging]);
 
     return (
         <div>
-            {pingResults.map((result, index) => (
-                <div key={index}>{JSON.stringify(result)}</div>
-            ))}
+            {pingResults && <p>{pingResults}</p>}
             <h2>Test Connection Page</h2>
-            <Button onClick={handlePingTest}>Tester la connexion</Button>
+            <Button onClick={handlePingTest}>{isPinging ? 'Stop ping' : 'Start ping'}</Button>
 
             <VictoryChart
                 theme={VictoryTheme.grayscale}

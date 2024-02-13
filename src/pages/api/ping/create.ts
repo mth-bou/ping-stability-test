@@ -1,7 +1,7 @@
-// pages/api/ping.js
+// pages/api/ping/create.ts
 import type { NextApiRequest, NextApiResponse } from 'next';
 import { exec } from 'child_process';
-import header from "@/layout/Header";
+import { NextRequest } from "next/server";
 
 export type Data = {
     message?: string;
@@ -17,19 +17,24 @@ interface Notify {
     close: () => void;
 }
 
-const longRunning = async (notify: Notify) => {
-    notify.log("Started")
-    await delay(1000)
-    notify.log("Done 15%")
-    await delay(1000)
-    notify.log("Done 35%")
-    await delay(1000)
-    notify.log("Done 75%")
-    await delay(1000)
-    notify.complete({ data: "My data" })
+const pingHost = async (host: string, notify: Notify) => {
+    notify.log("Début du ping");
+
+    exec(`ping ${host}`, (error, stdout, stderr) => {
+        if (error) {
+            notify.error({ message: `Erreur d'exécution du ping: ${error.message}` });
+            return;
+        }
+        if (stderr) {
+            notify.error({ message: `Erreur de ping: ${stderr}` });
+            return;
+        }
+        notify.log(`Résultat du ping: ${stdout}`);
+        notify.complete({ message: "Ping terminé avec succès" });
+    });
 }
 
-export default function handler(req: NextApiRequest, res: NextApiResponse<Data>) {
+export default function handler(req: NextRequest, res: NextApiResponse<Data>) {
 
     /*if (req.method === 'GET') {
         res.setHeader('Access-Control-Allow-Origin', '*'); // Remplacer '*' par des domaines spécifiques pour une meilleure sécurité
@@ -85,57 +90,46 @@ export default function handler(req: NextApiRequest, res: NextApiResponse<Data>)
         const writer = responseStream.writable.getWriter();
         const encoder = new TextEncoder();
         let closed = false;
+        const searchParams = req.nextUrl.searchParams;
+        const host = searchParams.get('host');
 
-        const pingHost = async (host: string, notify: Notify) => {
-            notify.log("Début du ping");
-
-            exec(`ping ${host}`, (error, stdout, stderr) => {
-                if (error) {
-                    notify.error({ message: `Erreur d'exécution du ping: ${error.message}` });
-                    return;
+        if (host) {
+            pingHost(
+                host,
+                {
+                    log: (msg: string) => writer.write(encoder.encode("data: " + msg + "\n\n")),
+                    complete: (obj: any) => {
+                        writer.write(encoder.encode("data: " + JSON.stringify(obj) + "\n\n"));
+                        if (!closed) {
+                            writer.close();
+                            closed = true;
+                        }
+                    },
+                    error: (err: Error | any) => {
+                        writer.write(encoder.encode("data: " + JSON.stringify(err?.message) + "\n\n"));
+                        if (!closed) {
+                            writer.close();
+                            closed = true;
+                        }
+                    },
+                    close: () => {
+                        if (!closed) {
+                            writer.close();
+                            closed = true;
+                        }
+                    }
+                }).then(() => {
+                console.info("Done");
+                if (!closed) {
+                    writer.close();
                 }
-                if (stderr) {
-                    notify.error({ message: `Erreur de ping: ${stderr}` });
-                    return;
+            }).catch((err) => {
+                console.error("Failed", err);
+                if (!closed) {
+                    writer.close();
                 }
-                notify.log(`Résultat du ping: ${stdout}`);
-                notify.complete({ message: "Ping terminé avec succès" });
             });
         }
-
-        /*longRunning({
-            log: (msg: string) => writer.write(encoder.encode("data: " + msg + "\n\n")),
-            complete: (obj: any) => {
-                writer.write(encoder.encode("data: " + JSON.stringify(obj) + "\n\n"));
-                    if (!closed) {
-                        writer.close();
-                        closed = true;
-                    }
-            },
-            error: (err: Error | any) => {
-                writer.write(encoder.encode("data: " + JSON.stringify(err?.message) + "\n\n"));
-                if (!closed) {
-                    writer.close();
-                    closed = true;
-                }
-            },
-            close: () => {
-                if (!closed) {
-                    writer.close();
-                    closed = true;
-                }
-            }
-        }).then(() => {
-            console.info("Done");
-            if (!closed) {
-                writer.close();
-            }
-        }).catch((err) => {
-            console.error("Failed", err);
-            if (!closed) {
-                writer.close();
-            }
-        });*/
 
         return new Response(responseStream.readable, {
             headers: {
@@ -152,7 +146,4 @@ export default function handler(req: NextApiRequest, res: NextApiResponse<Data>)
         res.status(405).end(`Method Not Allowed`);
     }
 }
-
-export const config = {
-    runtime: "edge"
-}
+export const dynamic = 'force-dynamic'
