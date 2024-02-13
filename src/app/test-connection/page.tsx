@@ -12,10 +12,16 @@ import {
 import { Button } from "@/components/ui/button";
 import { useTheme } from "next-themes";
 
+interface PingResults {
+    host: string;
+    average: number;
+    packetsLost: number;
+}
+
 const TestConnection: React.FC = () => {
 
     const { theme } = useTheme();
-    const [ pingResults, setPingResults ] = useState(null);
+    const [ pingResults, setPingResults ] = useState<PingResults[]>([]);
     const [ isPinging, setIsPinging ] = useState(false);
     const intervalIdRef = useRef<NodeJS.Timeout | null>(null);
 
@@ -35,13 +41,12 @@ const TestConnection: React.FC = () => {
 
     useEffect(() => {
         if (isPinging) {
-            // Permet de récupérer l'id de l'intervalle pour pouvoir le nettoyer à chaque fois que le composant est rendu
             intervalIdRef.current = setInterval(() => {
                 fetch('/api/pingHost?host=google.com')
                     .then(response => response.json())
                     .then(data => {
-                        setPingResults(data.result);
-                        console.log(data.result);
+                        setPingResults(prevResults => [...prevResults, data]);
+                        console.log(data);
                     });
             }, 1000);
         } else if (!isPinging && intervalIdRef.current) {
@@ -59,7 +64,17 @@ const TestConnection: React.FC = () => {
 
     return (
         <div>
-            {pingResults && <p>{pingResults}</p>}
+            {pingResults && (
+                <div>
+                    {pingResults.map((result, index) => (
+                        <React.Fragment key={`result-${index}`}>
+                            <p key={`host-${index}`}>Host : {result.host}</p>
+                            <p key={`ping-${index}`}>Ping : {result.average}</p>
+                            <p key={`packetsLost-${index}`}>Packets Lost : {result.packetsLost}</p>
+                        </React.Fragment>
+                    ))}
+                </div>
+            )}
             <h2>Test Connection Page</h2>
             <Button onClick={handlePingTest}>{isPinging ? 'Stop ping' : 'Start ping'}</Button>
 

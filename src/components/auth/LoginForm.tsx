@@ -6,7 +6,7 @@ import {CredentialsForm} from "@/components/auth/credentialsForm";
 import {Link} from "@nextui-org/link";
 
 
-const loginForm = () => {
+const LoginForm = () => {
 
     return (
         <div>
@@ -24,4 +24,4 @@ const loginForm = () => {
     );
 };
 
-export default loginForm;
+export default LoginForm;

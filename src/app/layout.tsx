@@ -5,7 +5,7 @@ import {clsx} from "clsx";
 import ThemeProvider from "@/theme/ThemeProvider";
 import Header from "@/layout/Header";
 import Footer from "@/layout/Footer";
-import React from "react";
+import type {FC, ReactNode} from 'react';
 import Sidebar from "@/layout/Sidebar";
 import Main from "@/layout/Main";
 import {Toaster} from "@/components/ui/toaster";
@@ -18,12 +18,12 @@ export const metadata: Metadata = {
     description: 'Allow you to test your stability connection about an online game.',
 }
 
-type LayoutProps = {
-    children: React.ReactNode;
-    modal?: React.ReactNode;
-};
+interface LayoutProps {
+    children: ReactNode;
+    modal?: ReactNode;
+}
 
-export default function RootLayout({children, modal}: LayoutProps) {
+const RootLayout: FC<LayoutProps> = ({children, modal}) => {
     return (
         <html lang="fr" className="h-full" suppressHydrationWarning>
         <body className={clsx(inter.className, 'bg-background h-full')}>
@@ -45,3 +45,5 @@ export default function RootLayout({children, modal}: LayoutProps) {
         </html>
     )
 }
+
+export default RootLayout;
