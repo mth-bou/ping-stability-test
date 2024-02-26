@@ -11,6 +11,7 @@ import {
 } from "victory";
 import { Button } from "@/components/ui/button";
 import { useTheme } from "next-themes";
+import {Card, CardContent, CardHeader, CardTitle} from "@/components/ui/card";
 
 interface PingResults {
     host: string;
@@ -22,23 +23,28 @@ const TestConnection: React.FC = () => {
 
     const { theme } = useTheme();
     const [ chartData, setChartData ] = useState<{ x: number, y: number}[]>([]);
+    const [ averagePing, setAveragePing ] = useState<number | null>(null);
     const [ isPinging, setIsPinging ] = useState(false);
     const intervalIdRef = useRef<NodeJS.Timeout | null>(null);
 
     const chartStyle = theme === 'dark' ? {
-        background: { fill: "#333" }, // Pour fond sombre
-        data: { stroke: "#FFD447" }, // Ligne jaune
-        axis: { stroke: "#FFF", tickLabels: { fill: "#FFF" } }, // Axes blancs
+        data: { stroke: "hsl(217.2 91.2% 59.8%)" },
+        axis: { stroke: "hsl(0 0% 100%)", tickLabels: { fill: "hsl(0 0% 100%)" } },
+        scatter: { fill: "hsl(217.2 91.2% 59.8%)"}
     } : {
-        background: { fill: "#FFF" }, // Pour fond clair
-        data: { stroke: "#000" }, // Ligne noire
-        axis: { stroke: "#333", tickLabels: { fill: "#333" } }, // Axes noirs
+        data: { stroke: "hsl(217.2 91.2% 59.8%)" },
+        axis: { stroke: "hsl(222.2 84% 4.9%)", tickLabels: { fill: "hsl(222.2 84% 4.9%)"  } },
+        scatter: { fill: "hsl(217.2 91.2% 59.8%)" }
     };
 
     const handlePingTest = () => {
         if (isPinging && intervalIdRef.current) {
             clearInterval(intervalIdRef.current);
             intervalIdRef.current = null;
+
+            // Calculate the average ping at the end of the test
+            const average = chartData.reduce((sum, data) => sum + data.y, 0) / chartData.length;
+            setAveragePing(average);
         }
         setIsPinging(!isPinging);
     }
@@ -81,55 +87,72 @@ const TestConnection: React.FC = () => {
     }
 
     return (
-        <div>
-            <h2 className="text-center text-xl">Effectuez un test de stabilité de votre connexion</h2>
-            <Button onClick={handlePingTest}>{isPinging ? 'Stop ping' : 'Start ping'}</Button>
+        <div className="flex fex-col md:flex-row justify-between w-full">
+            <div className="w-full md:w-2/3 m-4">
+                <h2 className="text-center text-base md:text-xl">Effectuez un test de stabilité de votre connexion</h2>
+                <Button onClick={handlePingTest}>{isPinging ? 'Arrêter le test' : 'Démarrer le test'}</Button>
 
-            <VictoryChart
-                theme={VictoryTheme.grayscale}
-                width={1000}
-                height={500}
-                domain={{ y: yDomain }}
-                containerComponent={
-                    <VictoryVoronoiContainer
-                        labels={({ datum }) => `y: ${datum.y}`}
-                        labelComponent={
-                            <VictoryTooltip
-                                cornerRadius={0}
-                                flyoutStyle={{ fill: "white" }}
-                            />
-                        }
+                <VictoryChart
+                    theme={VictoryTheme.grayscale}
+                    width={1000}
+                    height={500}
+                    domain={{ y: yDomain }}
+                    domainPadding={20}
+                    containerComponent={
+                        <VictoryVoronoiContainer
+                            labels={({ datum }) => `y: ${datum.y}`}
+                            labelComponent={
+                                <VictoryTooltip
+                                    cornerRadius={0}
+                                    flyoutStyle={{ fill: "white" }}
+                                />
+                            }
+                        />
+                    }
+                >
+                    <VictoryAxis
+                        tickValues={Array.from({ length: Math.max(20, chartData.length) }, (_, i) => i + 1)}
+                        style={{ axis: chartStyle.axis, tickLabels: chartStyle.axis }}
                     />
-                }
-                domainPadding={20}
-            >
-                <VictoryAxis
-                    tickValues={Array.from({ length: Math.max(20, chartData.length) }, (_, i) => i + 1)}
-                    style={{ axis: { stroke: "#FFF" }, tickLabels: { fill: "#FFF" } }}
-                />
-                <VictoryAxis dependentAxis style={{ axis: { stroke: "#fff" }, tickLabels: { fill: "#fff" } }} />
+                    <VictoryAxis
+                        style={{ axis: chartStyle.axis, tickLabels: chartStyle.axis }}
+                        dependentAxis
+                    />
 
-                <VictoryLine
-                    style={{
-                        data: { stroke: "#FFD447" },
-                        parent: { border: "1px solid #fff"}
-                    }}
-                    data={chartData}
-                    interpolation="natural"
-                    animate={{
-                        duration: 500,
-                        easing: "sinInOut",
-                        onLoad: { duration: 1000 }
-                    }}
+                    <VictoryLine
+                        style={{
+                            data: chartStyle.data,
+                            parent: { border: "1px solid #fff"}
+                        }}
+                        data={chartData}
+                        interpolation="natural"
+                        animate={{
+                            duration: 500,
+                            easing: "sinInOut",
+                            onLoad: { duration: 1000 }
+                        }}
 
-                />
+                    />
 
-                <VictoryScatter // Ajout du composant VictoryScatter
-                    style={{ data: { fill: "#FFD447" } }}
-                    size={5}
-                    data={chartData}
-                />
-            </VictoryChart>
+                    <VictoryScatter // Ajout du composant VictoryScatter
+                        style={{ data: chartStyle.scatter }}
+                        size={3}
+                        data={chartData}
+                    />
+                </VictoryChart>
+            </div>
+            <div className="w-full md:w-1/3 m-4">
+                {averagePing && (
+                    <Card className="bg-accent">
+                        <CardHeader>
+                            <CardTitle>Résultats du test</CardTitle>
+                        </CardHeader>
+                        <CardContent>
+                            Ping moyen : {averagePing.toFixed(2)} ms
+                        </CardContent>
+                    </Card>
+                )}
+            </div>
         </div>
 
     );

@@ -14,7 +14,7 @@ const Header = async () => {
 
     return (
         <header className="h-16 flex items-center relative justify-end px-5 space-x-2 bg-primary-background border-b">
-            <h2 className="text-2xl font-bold mx-auto">Ping Stability Test</h2>
+            <h2 className="text-base font-bold mx-auto md:text-2xl">Ping Stability Test</h2>
 
             <ThemeToggle />
 
