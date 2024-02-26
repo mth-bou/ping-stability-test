@@ -12,6 +12,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { useTheme } from "next-themes";
 import {Card, CardContent, CardHeader, CardTitle} from "@/components/ui/card";
+import SelectServer from "@/components/test-connection/SelectServer";
 
 interface PingResults {
     host: string;
@@ -26,6 +27,7 @@ const TestConnection: React.FC = () => {
     const [ averagePing, setAveragePing ] = useState<number | null>(null);
     const [ isPinging, setIsPinging ] = useState(false);
     const [ chartStyle, setChartStyle ] = useState({} as any);
+    const [ host, setHost ] = useState<string>('google.com');
     const intervalIdRef = useRef<NodeJS.Timeout | null>(null);
 
     useEffect(() => {
@@ -55,10 +57,19 @@ const TestConnection: React.FC = () => {
     useEffect(() => {
         if (isPinging) {
             intervalIdRef.current = setInterval(() => {
-                fetch('/api/pingHost?host=google.com')
+                fetch('/api/pingHost?host=' + host)
                     .then(response => response.json())
                     .then(data => {
-                        setChartData(prevData => [...prevData, { x: prevData.length + 1, y: data.average }]);
+                        setChartData(prevData => {
+                            let newData = [...prevData, { x: prevData.length + 1, y: data.average }];
+
+                            // Prevent the chart from growing indefinitely, only keep the last 30 data points
+                            if (newData.length > 30) {
+                                newData = newData.slice(newData.length - 30);
+                                newData = newData.map((item, index) => ({ x: index + 1, y: item.y }));
+                            }
+                            return newData;
+                        });
                     });
             }, 1000);
         } else if (!isPinging && intervalIdRef.current) {
@@ -72,7 +83,7 @@ const TestConnection: React.FC = () => {
                 intervalIdRef.current = null;
             }
         }
-    }, [isPinging]);
+    }, [isPinging, host]);
 
     // Calculates the range of values for the y-axis
     const yDomain: [number, number] = [
@@ -83,16 +94,13 @@ const TestConnection: React.FC = () => {
         )
     ];
 
-    // Reduces the number of points to display on the chart
-    const averageXAxis = (data: { x: number, y: number }[], points: number) => {
-        const interval = Math.ceil(data.length / points);
-        return data.filter((_, i) => i % interval === 0);
-    }
-
     return (
         <div className="flex fex-col md:flex-row justify-between w-full">
             <div className="w-full md:w-1/3 m-4">
                 <h2 className="text-center text-base md:text-xl mb-5">Effectuez un test de stabilité de votre connexion</h2>
+
+                <SelectServer setHost={setHost} />
+
                 <Button
                     variant='ghost'
                     className="w-full my-5 border-solid border-2"
@@ -107,6 +115,7 @@ const TestConnection: React.FC = () => {
                             <CardTitle>Résultats du test</CardTitle>
                         </CardHeader>
                         <CardContent>
+                            Serveur : {host} <br />
                             Ping moyen : {averagePing.toFixed(2)} ms
                         </CardContent>
                     </Card>
@@ -133,7 +142,7 @@ const TestConnection: React.FC = () => {
                     }
                 >
                     <VictoryAxis
-                        tickValues={Array.from({ length: Math.max(20, chartData.length) }, (_, i) => i + 1)}
+                        tickValues={Array.from({ length: Math.max(30, chartData.length) }, (_, i) => i + 1)}
                         style={{ axis: chartStyle.axis, tickLabels: chartStyle.axis }}
                     />
                     <VictoryAxis
@@ -147,7 +156,7 @@ const TestConnection: React.FC = () => {
                             parent: { border: "1px solid #fff"}
                         }}
                         data={chartData}
-                        interpolation="natural"
+                        interpolation="monotoneX"
                         animate={{
                             duration: 500,
                             easing: "sinInOut",
@@ -156,12 +165,20 @@ const TestConnection: React.FC = () => {
 
                     />
 
-                    <VictoryScatter // Ajout du composant VictoryScatter
+                    {/*<VictoryScatter // Ajout du composant VictoryScatter
                         style={{ data: chartStyle.scatter }}
                         size={3}
                         data={chartData}
-                    />
+                    />*/}
                 </VictoryChart>
+
+                <Button
+                    variant='ghost'
+                    className="w-full my-5 border-solid border-2"
+                    onClick={() => setChartData([])} // Met à jour chartData à un tableau vide
+                >
+                    Effacer les données du graphique
+                </Button>
             </div>
         </div>
 

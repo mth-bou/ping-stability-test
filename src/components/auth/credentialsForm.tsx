@@ -82,7 +82,8 @@ export const CredentialsForm = (props: CredentialsFormProps) => {
                     )}
                 />
                 <Button
-                    className="w-20 bg-primary"
+                    variant="ghost"
+                    className="border-solid border-2"
                     type="submit"
                 >Login</Button>
             </form>
