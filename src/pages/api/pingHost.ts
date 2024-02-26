@@ -15,8 +15,8 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     if (result.alive) {
         const pingResult = {
             host: host,
-            average: result.avg,
-            packetsLost: result.packetLoss
+            average: Math.floor(result.avg),
+            packetsLost: Math.floor(result.packetLoss)
         };
         res.status(200).json(pingResult);
     } else {

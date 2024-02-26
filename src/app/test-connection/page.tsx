@@ -21,7 +21,7 @@ interface PingResults {
 const TestConnection: React.FC = () => {
 
     const { theme } = useTheme();
-    const [ pingResults, setPingResults ] = useState<PingResults[]>([]);
+    const [ chartData, setChartData ] = useState<{ x: number, y: number}[]>([]);
     const [ isPinging, setIsPinging ] = useState(false);
     const intervalIdRef = useRef<NodeJS.Timeout | null>(null);
 
@@ -39,7 +39,6 @@ const TestConnection: React.FC = () => {
         if (isPinging && intervalIdRef.current) {
             clearInterval(intervalIdRef.current);
             intervalIdRef.current = null;
-            fetch('/api/pingHost?host=google.com&action=stop');
         }
         setIsPinging(!isPinging);
     }
@@ -50,8 +49,7 @@ const TestConnection: React.FC = () => {
                 fetch('/api/pingHost?host=google.com')
                     .then(response => response.json())
                     .then(data => {
-                        setPingResults(prevResults => [...prevResults, data]);
-                        console.log(data);
+                        setChartData(prevData => [...prevData, { x: prevData.length + 1, y: data.average }]);
                     });
             }, 1000);
         } else if (!isPinging && intervalIdRef.current) {
@@ -67,26 +65,31 @@ const TestConnection: React.FC = () => {
         }
     }, [isPinging]);
 
+    // Calculates the range of values for the y-axis
+    const yDomain: [number, number] = [
+        0,
+        Math.max(
+            50,
+            ...chartData.map(d => d.y)
+        )
+    ];
+
+    // Reduces the number of points to display on the chart
+    const averageXAxis = (data: { x: number, y: number }[], points: number) => {
+        const interval = Math.ceil(data.length / points);
+        return data.filter((_, i) => i % interval === 0);
+    }
+
     return (
         <div>
-            {pingResults && (
-                <div>
-                    {pingResults.map((result, index) => (
-                        <React.Fragment key={`result-${index}`}>
-                            <p key={`host-${index}`}>Host : {result.host}</p>
-                            <p key={`ping-${index}`}>Ping : {result.average}</p>
-                            <p key={`packetsLost-${index}`}>Packets Lost : {result.packetsLost}</p>
-                        </React.Fragment>
-                    ))}
-                </div>
-            )}
-            <h2>Test Connection Page</h2>
+            <h2 className="text-center text-xl">Effectuez un test de stabilité de votre connexion</h2>
             <Button onClick={handlePingTest}>{isPinging ? 'Stop ping' : 'Start ping'}</Button>
 
             <VictoryChart
                 theme={VictoryTheme.grayscale}
                 width={1000}
                 height={500}
+                domain={{ y: yDomain }}
                 containerComponent={
                     <VictoryVoronoiContainer
                         labels={({ datum }) => `y: ${datum.y}`}
@@ -100,7 +103,10 @@ const TestConnection: React.FC = () => {
                 }
                 domainPadding={20}
             >
-                <VictoryAxis style={{ axis: { stroke: "#FFF" }, tickLabels: { fill: "#FFF" } }} />
+                <VictoryAxis
+                    tickValues={Array.from({ length: Math.max(20, chartData.length) }, (_, i) => i + 1)}
+                    style={{ axis: { stroke: "#FFF" }, tickLabels: { fill: "#FFF" } }}
+                />
                 <VictoryAxis dependentAxis style={{ axis: { stroke: "#fff" }, tickLabels: { fill: "#fff" } }} />
 
                 <VictoryLine
@@ -108,19 +114,20 @@ const TestConnection: React.FC = () => {
                         data: { stroke: "#FFD447" },
                         parent: { border: "1px solid #fff"}
                     }}
-                    data={[
-                        { x: 1, y: 2 },
-                        { x: 2, y: 3 },
-                        { x: 3, y: 5 },
-                        { x: 4, y: 4 },
-                        { x: 5, y: 7 }
-                    ]}
+                    data={chartData}
                     interpolation="natural"
                     animate={{
-                        duration: 2000,
+                        duration: 500,
+                        easing: "sinInOut",
                         onLoad: { duration: 1000 }
                     }}
 
+                />
+
+                <VictoryScatter // Ajout du composant VictoryScatter
+                    style={{ data: { fill: "#FFD447" } }}
+                    size={5}
+                    data={chartData}
                 />
             </VictoryChart>
         </div>
