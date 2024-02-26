@@ -1,5 +1,5 @@
 'use client';
-import React, {useEffect, useRef, useState} from 'react';
+import React, { useEffect } from 'react';
 import {
     VictoryLine,
     VictoryChart,
@@ -13,6 +13,8 @@ import { Button } from "@/components/ui/button";
 import { useTheme } from "next-themes";
 import {Card, CardContent, CardHeader, CardTitle} from "@/components/ui/card";
 import SelectServer from "@/components/test-connection/SelectServer";
+import PingChart from "@/components/test-connection/PingChart";
+import { usePingTest } from "@/hooks/usePingTest";
 
 interface PingResults {
     host: string;
@@ -23,12 +25,11 @@ interface PingResults {
 const TestConnection: React.FC = () => {
 
     const { theme } = useTheme();
-    const [ chartData, setChartData ] = useState<{ x: number, y: number}[]>([]);
-    const [ averagePing, setAveragePing ] = useState<number | null>(null);
-    const [ isPinging, setIsPinging ] = useState(false);
-    const [ chartStyle, setChartStyle ] = useState({} as any);
-    const [ host, setHost ] = useState<string>('google.com');
-    const intervalIdRef = useRef<NodeJS.Timeout | null>(null);
+    const [ chartStyle, setChartStyle ] = React.useState<any>({});
+    const [ host, setHost ] = React.useState('google.com');
+    const [ averagePing, setAveragePing ] = React.useState<number | null>(null);
+    // Customized hook to retrieve the ping test data
+    const { chartData, isPinging, setIsPinging, clearChartData } = usePingTest(host);
 
     useEffect(() => {
         setChartStyle(theme === 'dark' ? {
@@ -43,56 +44,12 @@ const TestConnection: React.FC = () => {
     }, [theme]);
 
     const handlePingTest = () => {
-        if (isPinging && intervalIdRef.current) {
-            clearInterval(intervalIdRef.current);
-            intervalIdRef.current = null;
-
-            // Calculate the average ping at the end of the test
+        if (isPinging) {
             const average = chartData.reduce((sum, data) => sum + data.y, 0) / chartData.length;
             setAveragePing(average);
         }
         setIsPinging(!isPinging);
     }
-
-    useEffect(() => {
-        if (isPinging) {
-            intervalIdRef.current = setInterval(() => {
-                fetch('/api/pingHost?host=' + host)
-                    .then(response => response.json())
-                    .then(data => {
-                        setChartData(prevData => {
-                            let newData = [...prevData, { x: prevData.length + 1, y: data.average }];
-
-                            // Prevent the chart from growing indefinitely, only keep the last 30 data points
-                            if (newData.length > 30) {
-                                newData = newData.slice(newData.length - 30);
-                                newData = newData.map((item, index) => ({ x: index + 1, y: item.y }));
-                            }
-                            return newData;
-                        });
-                    });
-            }, 1000);
-        } else if (!isPinging && intervalIdRef.current) {
-            clearInterval(intervalIdRef.current);
-            intervalIdRef.current = null;
-        }
-
-        return () => {
-            if (intervalIdRef.current) {
-                clearInterval(intervalIdRef.current);
-                intervalIdRef.current = null;
-            }
-        }
-    }, [isPinging, host]);
-
-    // Calculates the range of values for the y-axis
-    const yDomain: [number, number] = [
-        0,
-        Math.max(
-            50,
-            ...chartData.map(d => d.y)
-        )
-    ];
 
     return (
         <div className="flex fex-col md:flex-row justify-between w-full">
@@ -123,59 +80,12 @@ const TestConnection: React.FC = () => {
             </div>
 
             <div className="w-full md:w-2/3 m-4">
-                <VictoryChart
-                    theme={VictoryTheme.grayscale}
-                    width={1000}
-                    height={500}
-                    domain={{ y: yDomain }}
-                    domainPadding={20}
-                    containerComponent={
-                        <VictoryVoronoiContainer
-                            labels={({ datum }) => `y: ${datum.y}`}
-                            labelComponent={
-                                <VictoryTooltip
-                                    cornerRadius={0}
-                                    flyoutStyle={{ fill: "white" }}
-                                />
-                            }
-                        />
-                    }
-                >
-                    <VictoryAxis
-                        tickValues={Array.from({ length: Math.max(30, chartData.length) }, (_, i) => i + 1)}
-                        style={{ axis: chartStyle.axis, tickLabels: chartStyle.axis }}
-                    />
-                    <VictoryAxis
-                        style={{ axis: chartStyle.axis, tickLabels: chartStyle.axis }}
-                        dependentAxis
-                    />
-
-                    <VictoryLine
-                        style={{
-                            data: chartStyle.data,
-                            parent: { border: "1px solid #fff"}
-                        }}
-                        data={chartData}
-                        interpolation="monotoneX"
-                        animate={{
-                            duration: 500,
-                            easing: "sinInOut",
-                            onLoad: { duration: 1000 }
-                        }}
-
-                    />
-
-                    {/*<VictoryScatter // Ajout du composant VictoryScatter
-                        style={{ data: chartStyle.scatter }}
-                        size={3}
-                        data={chartData}
-                    />*/}
-                </VictoryChart>
+                <PingChart chartData={chartData} chartStyle={chartStyle} />
 
                 <Button
                     variant='ghost'
                     className="w-full my-5 border-solid border-2"
-                    onClick={() => setChartData([])} // Met à jour chartData à un tableau vide
+                    onClick={clearChartData} // Met à jour chartData à un tableau vide
                 >
                     Effacer les données du graphique
                 </Button>
