@@ -91,10 +91,29 @@ const TestConnection: React.FC = () => {
 
     return (
         <div className="flex fex-col md:flex-row justify-between w-full">
-            <div className="w-full md:w-2/3 m-4">
-                <h2 className="text-center text-base md:text-xl">Effectuez un test de stabilité de votre connexion</h2>
-                <Button onClick={handlePingTest}>{isPinging ? 'Arrêter le test' : 'Démarrer le test'}</Button>
+            <div className="w-full md:w-1/3 m-4">
+                <h2 className="text-center text-base md:text-xl mb-5">Effectuez un test de stabilité de votre connexion</h2>
+                <Button
+                    variant='ghost'
+                    className="w-full my-5 border-solid border-2"
+                    onClick={handlePingTest}
+                >
+                    {isPinging ? 'Arrêter le test' : 'Démarrer le test'}
+                </Button>
 
+                {averagePing && (
+                    <Card className="bg-accent">
+                        <CardHeader>
+                            <CardTitle>Résultats du test</CardTitle>
+                        </CardHeader>
+                        <CardContent>
+                            Ping moyen : {averagePing.toFixed(2)} ms
+                        </CardContent>
+                    </Card>
+                )}
+            </div>
+
+            <div className="w-full md:w-2/3 m-4">
                 <VictoryChart
                     theme={VictoryTheme.grayscale}
                     width={1000}
@@ -143,18 +162,6 @@ const TestConnection: React.FC = () => {
                         data={chartData}
                     />
                 </VictoryChart>
-            </div>
-            <div className="w-full md:w-1/3 m-4">
-                {averagePing && (
-                    <Card className="bg-accent">
-                        <CardHeader>
-                            <CardTitle>Résultats du test</CardTitle>
-                        </CardHeader>
-                        <CardContent>
-                            Ping moyen : {averagePing.toFixed(2)} ms
-                        </CardContent>
-                    </Card>
-                )}
             </div>
         </div>
 
