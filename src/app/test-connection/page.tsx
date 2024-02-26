@@ -25,17 +25,20 @@ const TestConnection: React.FC = () => {
     const [ chartData, setChartData ] = useState<{ x: number, y: number}[]>([]);
     const [ averagePing, setAveragePing ] = useState<number | null>(null);
     const [ isPinging, setIsPinging ] = useState(false);
+    const [ chartStyle, setChartStyle ] = useState({} as any);
     const intervalIdRef = useRef<NodeJS.Timeout | null>(null);
 
-    const chartStyle = theme === 'dark' ? {
-        data: { stroke: "hsl(217.2 91.2% 59.8%)" },
-        axis: { stroke: "hsl(0 0% 100%)", tickLabels: { fill: "hsl(0 0% 100%)" } },
-        scatter: { fill: "hsl(217.2 91.2% 59.8%)"}
-    } : {
-        data: { stroke: "hsl(217.2 91.2% 59.8%)" },
-        axis: { stroke: "hsl(222.2 84% 4.9%)", tickLabels: { fill: "hsl(222.2 84% 4.9%)"  } },
-        scatter: { fill: "hsl(217.2 91.2% 59.8%)" }
-    };
+    useEffect(() => {
+        setChartStyle(theme === 'dark' ? {
+            data: { stroke: "hsl(217.2 91.2% 59.8%)" },
+            axis: { stroke: "hsl(0 0% 100%)", tickLabels: { fill: "hsl(0 0% 100%)" } },
+            scatter: { fill: "hsl(217.2 91.2% 59.8%)"}
+        } : {
+            data: { stroke: "hsl(217.2 91.2% 59.8%)" },
+            axis: { stroke: "hsl(222.2 84% 4.9%)", tickLabels: { fill: "hsl(222.2 84% 4.9%)"  } },
+            scatter: { fill: "hsl(217.2 91.2% 59.8%)" }
+        });
+    }, [theme]);
 
     const handlePingTest = () => {
         if (isPinging && intervalIdRef.current) {
