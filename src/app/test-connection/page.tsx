@@ -36,6 +36,11 @@ const TestConnection: React.FC = () => {
     };
 
     const handlePingTest = () => {
+        if (isPinging && intervalIdRef.current) {
+            clearInterval(intervalIdRef.current);
+            intervalIdRef.current = null;
+            fetch('/api/pingHost?host=google.com&action=stop');
+        }
         setIsPinging(!isPinging);
     }
 
