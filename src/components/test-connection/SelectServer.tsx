@@ -43,6 +43,10 @@ const SelectServer: React.FC<SelectServerProps> = ({ setHost, style }) => {
                     className="justify-between"
                     style={style}
                 >
+                    <Avatar className="mr-4">
+                        <AvatarImage src={gameServers.find((gameServer) => gameServer.value === value)?.icon} alt={value} />
+                        <AvatarFallback></AvatarFallback>
+                    </Avatar>
                     {value
                         ? gameServers.find((gameServer) => gameServer.value === value)?.label
                         : "Selectionner un serveur de jeu..."}
