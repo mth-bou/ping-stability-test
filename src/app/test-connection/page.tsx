@@ -6,15 +6,18 @@ import {Card, CardContent, CardHeader, CardTitle} from "@/components/ui/card";
 import SelectServer from "@/components/test-connection/SelectServer";
 import PingChart from "@/components/test-connection/PingChart";
 import { usePingTest } from "@/hooks/usePingTest";
+import { useToast } from "@/components/ui/use-toast";
 const TestConnection: React.FC = () => {
 
     const { theme } = useTheme();
     const [ chartStyle, setChartStyle ] = useState<any>({});
-    const [ host, setHost ] = useState('google.com');
+    const [ host, setHost ] = useState('');
     const [ hostTested, setHostTested ] = useState('');
+    const [isButtonClicked, setIsButtonClicked] = useState(false);
     const [ averagePing, setAveragePing ] = useState<number | null>(null);
     // Customized hook to retrieve the ping test data
     const { chartData, isPinging, setIsPinging, clearChartData } = usePingTest(host);
+    const { toast } = useToast();
 
     useEffect(() => {
         setChartStyle(theme === 'dark' ? {
@@ -29,6 +32,14 @@ const TestConnection: React.FC = () => {
     }, [theme]);
 
     const handlePingTest = () => {
+        if (host === '') {
+            toast({
+                title: 'Erreur',
+                description: 'Veuillez sélectionner un jeu',
+            });
+            setIsButtonClicked(true);
+            return;
+        }
         if (isPinging) {
             const average = chartData.reduce((sum, data) => sum + data.y, 0) / chartData.length;
             setAveragePing(average);
@@ -48,7 +59,7 @@ const TestConnection: React.FC = () => {
             <div className="w-full md:w-1/3 m-4">
                 <h2 className="text-center text-base md:text-xl mb-5">Effectuez un test de stabilité de votre connexion</h2>
 
-                <SelectServer setHost={setHost} />
+                <SelectServer setHost={setHost} style={{border: (host || !isButtonClicked) ? '' : '1px solid red'}} />
 
                 <Button
                     variant='ghost'

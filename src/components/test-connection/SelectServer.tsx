@@ -26,9 +26,10 @@ import {
 
 interface SelectServerProps {
     setHost: (host: string) => void;
+    style?: React.CSSProperties;
 }
 
-const SelectServer: React.FC<SelectServerProps> = ({ setHost }) => {
+const SelectServer: React.FC<SelectServerProps> = ({ setHost, style }) => {
     const [open, setOpen] = React.useState(false)
     const [value, setValue] = React.useState("")
 
@@ -40,6 +41,7 @@ const SelectServer: React.FC<SelectServerProps> = ({ setHost }) => {
                     role="combobox"
                     aria-expanded={open}
                     className="justify-between"
+                    style={style}
                 >
                     {value
                         ? gameServers.find((gameServer) => gameServer.value === value)?.label
