@@ -2,97 +2,66 @@ export const gameServers = [
     {
         label: "Google",
         value: "google.com",
+        icon: "/icons/"
     },
     {
         label: "League of Legends",
         value: "prod.euw1.lol.riotgames.com",
+        icon: "/icons/lol.png"
     },
     {
         label: "Valorant",
         value: "valorant.com",
+        icon: "/icons/valorant.png"
     },
     {
         label: "Fortnite",
         value: "fornite.fr",
+        icon: "/icons/fortnite.png"
     },
     {
         label: "Minecraft",
         value: "minecraft.net",
+        icon: "/icons/minecraft.png"
     },
     {
-        label: "Call of Duty",
+        label: "Warzone",
         value: "callofduty.com",
+        icon: "/icons/warzone.png"
     },
     {
         label: "Counter-Strike",
         value: "counterstrike.com",
+        icon: "/icons/csgo.png"
     },
     {
         label: "Overwatch",
         value: "overwatch.com",
-    },
-    {
-        label: "World of Warcraft",
-        value: "worldofwarcraft.com",
+        icon: "/icons/overwatch.png"
     },
     {
         label: "GTA V",
         value: "rockstargames.com",
+        icon: "/icons/gta-5.png"
     },
     {
         label: "Apex Legends",
         value: "apexlegends.com",
+        icon: "/icons/apex-legends.png"
     },
     {
         label: "Dota 2",
         value: "dota2.com",
-    },
-    {
-        label: "PUBG",
-        value: "pubg.com",
-    },
-    {
-        label: "FIFA",
-        value: "fifa.com",
+        icon: "/icons/dota-2.png"
     },
     {
         label: "Rocket League",
         value: "rocketleague.com",
+        icon: "/icons/rocket-league.png"
     },
     {
         label: "Rainbow Six Siege",
         value: "rainbowsixsiege.com",
-    },
-    {
-        label: "Warframe",
-        value: "warframe.com",
-    },
-    {
-        label: "War Thunder",
-        value: "warthunder.com",
-    },
-    {
-        label: "World of Tanks",
-        value: "worldoftanks.com",
-    },
-    {
-        label: "World of Warships",
-        value: "worldofwarships.com",
-    },
-    {
-        label: "World of Warplanes",
-        value: "worldofwarplanes.com",
-    },
-    {
-        label: "Star Citizen",
-        value: "robertsspaceindustries.com",
-    },
-    {
-        label: "Final Fantasy XIV",
-        value: "finalfantasyxiv.com",
-    },
-    {
-        label: "Guild Wars 2",
-        value: "guildwars2.com",
+        icon: "/icons/rainbow-six-siege.png"
     },
 ]

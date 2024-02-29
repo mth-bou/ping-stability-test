@@ -7,6 +7,11 @@ import { cn } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
 import { gameServers } from "@/constants/gameServers";
 import {
+    Avatar,
+    AvatarFallback,
+    AvatarImage
+} from "@/components/ui/avatar"
+import {
     Command,
     CommandEmpty,
     CommandGroup,
@@ -45,7 +50,7 @@ const SelectServer: React.FC<SelectServerProps> = ({ setHost }) => {
             <PopoverContent className="w-[200px] p-0">
                 <Command>
                     <CommandInput placeholder="Chercher un jeu..." className="h-9" />
-                    <CommandEmpty>No framework found.</CommandEmpty>
+                    <CommandEmpty>Aucun jeu trouvé</CommandEmpty>
                     <CommandGroup>
                         {gameServers.map((gameServer) => (
                             <CommandItem
@@ -57,6 +62,10 @@ const SelectServer: React.FC<SelectServerProps> = ({ setHost }) => {
                                     setOpen(false)
                                 }}
                             >
+                                <Avatar className="mr-4">
+                                    <AvatarImage src={gameServer.icon} alt={gameServer.label} />
+                                    <AvatarFallback>{gameServer.label[0]}</AvatarFallback>
+                                </Avatar>
                                 {gameServer.label}
                                 <CheckIcon
                                     className={cn(
