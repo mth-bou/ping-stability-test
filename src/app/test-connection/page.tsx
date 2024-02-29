@@ -1,33 +1,18 @@
 'use client';
-import React, { useEffect } from 'react';
-import {
-    VictoryLine,
-    VictoryChart,
-    VictoryAxis,
-    VictoryVoronoiContainer,
-    VictoryScatter,
-    VictoryTooltip,
-    VictoryTheme
-} from "victory";
+import React, { useEffect, useState } from 'react';
 import { Button } from "@/components/ui/button";
 import { useTheme } from "next-themes";
 import {Card, CardContent, CardHeader, CardTitle} from "@/components/ui/card";
 import SelectServer from "@/components/test-connection/SelectServer";
 import PingChart from "@/components/test-connection/PingChart";
 import { usePingTest } from "@/hooks/usePingTest";
-
-interface PingResults {
-    host: string;
-    average: number;
-    packetsLost: number;
-}
-
 const TestConnection: React.FC = () => {
 
     const { theme } = useTheme();
-    const [ chartStyle, setChartStyle ] = React.useState<any>({});
-    const [ host, setHost ] = React.useState('google.com');
-    const [ averagePing, setAveragePing ] = React.useState<number | null>(null);
+    const [ chartStyle, setChartStyle ] = useState<any>({});
+    const [ host, setHost ] = useState('google.com');
+    const [ hostTested, setHostTested ] = useState('');
+    const [ averagePing, setAveragePing ] = useState<number | null>(null);
     // Customized hook to retrieve the ping test data
     const { chartData, isPinging, setIsPinging, clearChartData } = usePingTest(host);
 
@@ -47,9 +32,16 @@ const TestConnection: React.FC = () => {
         if (isPinging) {
             const average = chartData.reduce((sum, data) => sum + data.y, 0) / chartData.length;
             setAveragePing(average);
+            setHostTested(host);
         }
         setIsPinging(!isPinging);
     }
+
+    // Clear the chart data when the host changes
+    useEffect(() => {
+        clearChartData();
+    }, [host]);
+
 
     return (
         <div className="flex fex-col md:flex-row justify-between w-full">
@@ -72,7 +64,7 @@ const TestConnection: React.FC = () => {
                             <CardTitle>Résultats du test</CardTitle>
                         </CardHeader>
                         <CardContent>
-                            Serveur : {host} <br />
+                            Serveur : {hostTested} <br />
                             Ping moyen : {averagePing.toFixed(2)} ms
                         </CardContent>
                     </Card>
@@ -82,13 +74,13 @@ const TestConnection: React.FC = () => {
             <div className="w-full md:w-2/3 m-4">
                 <PingChart chartData={chartData} chartStyle={chartStyle} />
 
-                <Button
+                {/*<Button
                     variant='ghost'
                     className="w-full my-5 border-solid border-2"
                     onClick={clearChartData} // Met à jour chartData à un tableau vide
                 >
                     Effacer les données du graphique
-                </Button>
+                </Button>*/}
             </div>
         </div>
 

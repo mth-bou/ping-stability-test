@@ -5,6 +5,7 @@ import { CaretSortIcon, CheckIcon } from "@radix-ui/react-icons"
 
 import { cn } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
+import { gameServers } from "@/constants/gameServers";
 import {
     Command,
     CommandEmpty,
@@ -17,29 +18,6 @@ import {
     PopoverContent,
     PopoverTrigger,
 } from "@/components/ui/popover"
-
-const gameServers = [
-    {
-        value: "google.com",
-        label: "Google",
-    },
-    {
-        value: "amazon.fr",
-        label: "Amazon",
-    },
-    {
-        value: "nuxt.js",
-        label: "Nuxt.js",
-    },
-    {
-        value: "remix",
-        label: "Remix",
-    },
-    {
-        value: "astro",
-        label: "Astro",
-    },
-]
 
 interface SelectServerProps {
     setHost: (host: string) => void;
