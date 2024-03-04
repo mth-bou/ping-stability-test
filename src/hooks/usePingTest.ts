@@ -5,7 +5,8 @@ const ERROR_MESSAGE = 'Echec de test de ping';
 
 export const usePingTest = (host: string) => {
     const [ chartData, setChartData ] = useState<{ x: number, y: number }[]>([]);
-    const [ isPinging, setIsPinging ] = useState(false);
+    // store all the data points to calculate the average ping
+    const [ allChartData, setAllChartData ] = useState<{ x: number, y: number }[]>([]);
     const [ pingState, setPingState ] = useState({ isPinging: false, hasError: false });
     const intervalIdRef = useRef<NodeJS.Timeout | null>(null);
     const { toast } = useToast();
@@ -44,6 +45,8 @@ export const usePingTest = (host: string) => {
                     })
                     .then(data => {
 
+                        setAllChartData(prevData => [...prevData, { x: prevData.length + 1, y: data.average }]);
+
                         setChartData(prevData => {
                             let newData = [...prevData, { x: prevData.length + 1, y: data.average }];
 
@@ -69,11 +72,13 @@ export const usePingTest = (host: string) => {
 
     const clearChartData = () => {
         setChartData([]);
+        setAllChartData([]);
     }
 
     return {
         chartData,
-        isPinging: pingState.isPinging,
+        allChartData,
+        pingState,
         setIsPinging: (isPinging: boolean) => setPingState({ isPinging, hasError: false }),
         clearChartData };
 }

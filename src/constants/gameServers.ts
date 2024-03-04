@@ -31,7 +31,7 @@ export const gameServers = [
     },
     {
         label: "Counter-Strike",
-        value: "counterstrike.com",
+        value: "counter-strike.net",
         icon: "/icons/csgo.png"
     },
     {

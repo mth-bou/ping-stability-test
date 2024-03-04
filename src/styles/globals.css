@@ -28,6 +28,7 @@
     /*--ring: 221.2 83.2% 53.3%;*/
     --ring: 222.2 84% 4.9%;
     --radius: 0.5rem;
+    --shadow-color: 0 0% 20%;
   }
 
   .dark {
@@ -51,6 +52,7 @@
     --border: 217.2 32.6% 17.5%;
     --input: 217.2 32.6% 17.5%;
     --ring: 224.3 76.3% 48%;
+    --shadow-color: 0 0% 80%;
   }
 }
 
@@ -64,5 +66,32 @@
   }
   main {
     @apply bg-background;
+  }
+}
+
+@layer components {
+
+  @keyframes ripple {
+    0% {
+      box-shadow:
+              0 0 0 0 rgba(255, 255, 255, 0.1),
+              0 0 0 2px rgba(255, 255, 255, 0.1),
+              0 0 0 6px rgba(255, 255, 255, 0.1),
+              0 0 0 8px rgba(255, 255, 255, 0.1);
+    }
+
+    100% {
+      box-shadow:
+              0 0 0 2px rgba(255, 255, 255, 0.1),
+              0 0 0 2px rgba(255, 255, 255, 0.1),
+              0 0 0 8px rgba(255, 255, 255, 0.1),
+              0 0 0 8px rgba(255, 255, 255, 0);
+    }
+  }
+
+  .animate-button-ripple {
+    overflow: hidden;
+    border-radius: 100%;
+    animation: ripple 0.6s linear infinite;
   }
 }

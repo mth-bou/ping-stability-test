@@ -1,5 +1,4 @@
 import React from "react";
-import { useTheme } from "next-themes";
 import {
     VictoryLine,
     VictoryChart,

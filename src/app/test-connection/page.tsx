@@ -16,7 +16,13 @@ const TestConnection: React.FC = () => {
     const [isButtonClicked, setIsButtonClicked] = useState(false);
     const [ averagePing, setAveragePing ] = useState<number | null>(null);
     // Customized hook to retrieve the ping test data
-    const { chartData, isPinging, setIsPinging, clearChartData } = usePingTest(host);
+    const {
+        chartData,
+        allChartData,
+        pingState,
+        setIsPinging,
+        clearChartData } = usePingTest(host);
+
     const { toast } = useToast();
 
     useEffect(() => {
@@ -40,12 +46,15 @@ const TestConnection: React.FC = () => {
             setIsButtonClicked(true);
             return;
         }
-        if (isPinging) {
-            const average = chartData.reduce((sum, data) => sum + data.y, 0) / chartData.length;
+        if (pingState.isPinging) {
+            const average = allChartData.reduce((sum, data) => sum + data.y, 0) / allChartData.length;
             setAveragePing(average);
             setHostTested(host);
+        } else {
+            // Clear the average ping when the test is stopped
+            setAveragePing(null);
         }
-        setIsPinging(!isPinging);
+        setIsPinging(!pingState.isPinging);
     }
 
     // Clear the chart data when the host changes
@@ -63,13 +72,13 @@ const TestConnection: React.FC = () => {
 
                 <Button
                     variant='ghost'
-                    className="w-full my-5 border-solid border-2"
+                    className={`w-full my-5 border-solid border-2 ${pingState.isPinging ? 'animate-button-ripple' : ''}`}
                     onClick={handlePingTest}
                 >
-                    {isPinging ? 'Arrêter le test' : 'Démarrer le test'}
+                    {pingState.isPinging ? 'Arrêter le test' : 'Démarrer le test'}
                 </Button>
 
-                {averagePing && (
+                {averagePing && !pingState.hasError && (
                     <Card className="bg-accent">
                         <CardHeader>
                             <CardTitle>Résultats du test</CardTitle>
